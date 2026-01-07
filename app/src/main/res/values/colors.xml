@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="my_background">#333333</color>
+    <color name="my_darker_background">#1A1A1A</color>
+
+    <color name="text_primary">@android:color/white</color>
+    <color name="text_secondary">#D1CCD3</color>
+
+    <color name="icon_color">#78737D</color>
+</resources>

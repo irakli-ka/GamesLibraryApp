@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "81897328716",
+    "project_id": "gameslibraryappfinal",
+    "storage_bucket": "gameslibraryappfinal.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:81897328716:android:bdbad57f9a8a106b08a4e9",
+        "android_client_info": {
+          "package_name": "com.example.gameslibraryapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBNy9AogB5ayigHcjKkJHjw1oluWM8mN4U"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

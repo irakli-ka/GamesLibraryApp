@@ -1,0 +1,19 @@
+<resources>
+
+    <style name="Theme.GamesLibraryApp" parent="Theme.Material3.DayNight.NoActionBar">
+
+        <item name="colorPrimary">@color/my_background</item>
+        <item name="colorPrimaryVariant">@color/my_darker_background</item>
+        <item name="android:statusBarColor">?attr/colorPrimaryVariant</item>
+
+        <item name="android:textColorPrimary">@color/text_primary</item>
+        <item name="android:textColorSecondary">@color/text_secondary</item>
+
+        <item name="colorControlNormal">@color/icon_color</item>
+
+        <item name="android:windowBackground">@color/my_background</item>
+    </style>
+    <style name="RoundedSquare">
+        <item name="cornerSize">8dp</item>
+    </style>
+</resources>

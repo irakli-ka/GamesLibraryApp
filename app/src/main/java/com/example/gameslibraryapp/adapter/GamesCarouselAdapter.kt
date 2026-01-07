@@ -1,0 +1,75 @@
+package com.example.gameslibraryapp.adapter
+
+import android.view.LayoutInflater
+import android.view.ViewGroup
+import android.widget.ImageView
+import android.widget.LinearLayout
+import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
+import com.example.gameslibraryapp.R
+import com.example.gameslibraryapp.databinding.ItemGameCardBinding
+import com.example.gameslibraryapp.model.Game
+
+class GamesCarouselAdapter(private var games: List<Game>) :
+    RecyclerView.Adapter<GamesCarouselAdapter.GameViewHolder>() {
+
+    inner class GameViewHolder(val binding: ItemGameCardBinding) :
+        RecyclerView.ViewHolder(binding.root)
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): GameViewHolder {
+        val binding = ItemGameCardBinding.inflate(
+            LayoutInflater.from(parent.context),
+            parent,
+            false
+        )
+        return GameViewHolder(binding)
+    }
+
+    override fun getItemCount(): Int = games.size
+
+    override fun onBindViewHolder(holder: GameViewHolder, position: Int) {
+        val game = games[position]
+        val context = holder.itemView.context
+
+        holder.binding.gameTitle.text = game.name
+        holder.binding.gameRating.text = String.format("%.2f⭐", game.rating)
+        Glide.with(context)
+            .load(game.backgroundImage)
+            .into(holder.binding.gameImage)
+
+
+
+        holder.binding.platformIconsContainer.removeAllViews()
+        val addedIconTypes = mutableSetOf<Int>()
+        game.platforms.forEach { platformInfo ->
+            val platformName = platformInfo.platform.name.lowercase()
+
+            val platformIconRes = when {
+                platformName.contains("pc") -> R.drawable.ic_platform_pc
+                platformName.contains("playstation") -> R.drawable.ic_platform_playstation
+                platformName.contains("xbox") -> R.drawable.ic_platform_xbox
+                platformName.contains("nintendo") -> R.drawable.ic_platform_nintendo
+                else -> 0
+            }
+
+            if (platformIconRes != 0 && addedIconTypes.add(platformIconRes)) {
+                val iconImageView = ImageView(context).apply {
+                    setImageResource(platformIconRes)
+                    layoutParams = LinearLayout.LayoutParams(
+                        48,
+                        48
+                    ).also {
+                        it.marginEnd = 8
+                    }
+                    setColorFilter(context.getColor(android.R.color.white)) // Apply tint
+                }
+                holder.binding.platformIconsContainer.addView(iconImageView)
+            }
+        }
+    }
+    fun updateGames(newGames: List<Game>) {
+        this.games = newGames
+        notifyDataSetChanged()
+    }
+
+}
