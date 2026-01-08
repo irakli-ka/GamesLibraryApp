@@ -4,32 +4,42 @@ import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
+import androidx.paging.filter
 import com.example.gameslibraryapp.model.Game
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.map
 
 class MainViewModel : ViewModel() {
 
-    // A Pager is the entry point for Paging 3. It connects the PagingSource (how to get data)
-    // with a PagingConfig (how to load the data).
-    val gamesFeed: Flow<PagingData<Game>> = Pager(
-        // PagingConfig defines how to load data from the PagingSource.
-        config = PagingConfig(
-            pageSize = 20, // The number of items to load per page from the API.
-            enablePlaceholders = false
-        ),
-        // The PagingSource factory creates an instance of our GamePagingSource,
-        // which knows how to fetch pages from the RAWG API.
-        pagingSourceFactory = {
-            GamePagingSource(
-                api = RetrofitInstance.api,
-                dates = "", // Example filter
-                ordering = "" // Example sorting
-            )
-        }
-    ).flow
-        // cachedIn() caches the data in the viewModelScope. This makes the data stream
-        // survive configuration changes (like screen rotation) and allows it to be shared
-        // between different UI components if needed.
-        .cachedIn(viewModelScope)
+    // 1. Store the actual games list, not just IDs
+    private val _carouselGames = MutableStateFlow<List<Game>>(emptyList())
+    val carouselGames = _carouselGames.asStateFlow()
 
+    // We derive the IDs automatically from the list above
+    private val excludedIds = _carouselGames.map { games ->
+        games.map { it.id }.toSet()
+    }
+
+    val gamesFeed: Flow<PagingData<Game>> = Pager(
+        config = PagingConfig(pageSize = 20, enablePlaceholders = false),
+        pagingSourceFactory = { GamePagingSource(RetrofitInstance.api, "", "") }
+    ).flow
+        .cachedIn(viewModelScope)
+        .combine(excludedIds) { pagingData, ids ->
+            // Filter out any game that is currently in the carousel
+            pagingData.filter { game -> !ids.contains(game.id) }
+        }
+
+    fun setCarouselGames(games: List<Game>) {
+        // Only update if we don't have games yet (prevents overwriting on navigation)
+        if (_carouselGames.value.isEmpty()) {
+            _carouselGames.value = games
+        }
+    }
+
+    // Helper to check if we already have data
+    fun hasCarouselData(): Boolean = _carouselGames.value.isNotEmpty()
 }

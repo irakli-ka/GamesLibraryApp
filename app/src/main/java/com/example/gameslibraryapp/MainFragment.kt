@@ -5,13 +5,13 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.ConcatAdapter
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.viewpager2.widget.ViewPager2
+import com.example.gameslibraryapp.adapter.CarouselHeaderAdapter
 import com.example.gameslibraryapp.adapter.GamesCarouselAdapter
 import com.example.gameslibraryapp.adapter.GamesFeedAdapter
 import com.example.gameslibraryapp.databinding.FragmentMainBinding
@@ -25,13 +25,11 @@ class MainFragment : Fragment(), SearchBarView.OnSearchListener {
     private val mainViewModel: MainViewModel by viewModels()
 
     private lateinit var carouselAdapter: GamesCarouselAdapter
+    private lateinit var headerAdapter: CarouselHeaderAdapter
     private lateinit var gamesFeedAdapter: GamesFeedAdapter
-    private val indicatorViews = mutableListOf<View>()
 
     override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
         _binding = FragmentMainBinding.inflate(inflater, container, false)
         return binding.root
@@ -41,83 +39,53 @@ class MainFragment : Fragment(), SearchBarView.OnSearchListener {
         super.onViewCreated(view, savedInstanceState)
 
         binding.topBar.searchBar.setOnSearchListener(this)
+        setupRecyclerView()
 
-        setupCarousel()
-        setupGamesFeed()
+        // 1. Observe the Carousel Data (Restores state when returning)
+        viewLifecycleOwner.lifecycleScope.launch {
+            mainViewModel.carouselGames.collectLatest { games ->
+                if (games.isNotEmpty()) {
+                    carouselAdapter.updateGames(games)
 
+                    (binding.gamesFeedRV.adapter as? ConcatAdapter)?.adapters?.forEach {
+                        if (it is CarouselHeaderAdapter) it.notifyItemChanged(0)
+                    }
+                }
+            }
+        }
+
+        // 2. Observe the Feed
         viewLifecycleOwner.lifecycleScope.launch {
             mainViewModel.gamesFeed.collectLatest { pagingData ->
                 gamesFeedAdapter.submitData(pagingData)
             }
         }
-
-        binding.gamesCarousel.registerOnPageChangeCallback(object :
-            ViewPager2.OnPageChangeCallback() {
-            override fun onPageSelected(position: Int) {
-                super.onPageSelected(position)
-                updateLineIndicator(position)
-            }
-        })
     }
 
-    private fun setupCarousel() {
+    private fun setupRecyclerView() {
         carouselAdapter = GamesCarouselAdapter(emptyList())
-        binding.gamesCarousel.adapter = carouselAdapter
-    }
-
-    private fun setupGamesFeed() {
+        headerAdapter = CarouselHeaderAdapter(carouselAdapter)
         gamesFeedAdapter = GamesFeedAdapter()
 
         gamesFeedAdapter.addLoadStateListener { loadState ->
-            val isFirstLoad = gamesFeedAdapter.itemCount > 0 && carouselAdapter.itemCount == 0
-            if (isFirstLoad) {
+            if (!mainViewModel.hasCarouselData() &&
+                gamesFeedAdapter.itemCount >= 5) {
+
                 val carouselGames = gamesFeedAdapter.snapshot().items.take(5)
-                carouselAdapter.updateGames(carouselGames)
-                setupLineIndicator(carouselGames.size)
+                mainViewModel.setCarouselGames(carouselGames)
             }
         }
 
+        val concatAdapter = ConcatAdapter(headerAdapter, gamesFeedAdapter)
+
         binding.gamesFeedRV.apply {
-            adapter = gamesFeedAdapter
+            adapter = concatAdapter
             layoutManager = LinearLayoutManager(context)
         }
     }
 
-    private fun setupLineIndicator(count: Int) {
-        binding.carouselIndicatorContainer.removeAllViews()
-        indicatorViews.clear()
-
-        if (count <= 0) return
-
-        binding.carouselIndicatorContainer.weightSum = count.toFloat()
-        for (i in 0 until count) {
-            val view = View(requireContext())
-            val params =
-                LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.MATCH_PARENT, 1f).apply {
-                    marginEnd = 0
-                }
-            view.layoutParams = params
-            view.setBackgroundResource(if (i == 0) R.drawable.indicator_active_segment else R.drawable.indicator_inactive_segment)
-            indicatorViews.add(view)
-            binding.carouselIndicatorContainer.addView(view)
-        }
-    }
-
-    private fun updateLineIndicator(position: Int) {
-        if (position < 0 || position >= indicatorViews.size) return
-        for (i in indicatorViews.indices) {
-            indicatorViews[i].setBackgroundResource(
-                if (i == position) R.drawable.indicator_active_segment else R.drawable.indicator_inactive_segment
-            )
-        }
-    }
-
     override fun onSearch(query: String) {
-        Toast.makeText(
-            requireContext(),
-            "MainFragment received search query: $query",
-            Toast.LENGTH_LONG
-        ).show()
+        Toast.makeText(requireContext(), "Search: $query", Toast.LENGTH_LONG).show()
     }
 
     override fun onDestroyView() {
