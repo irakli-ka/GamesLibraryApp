@@ -12,6 +12,7 @@ interface RawgApi {
     suspend fun getGames(
         @Query("key") apiKey: String,
         @Query("dates") dates: String,
-        @Query("ordering") ordering: String
+        @Query("ordering") ordering: String,
+        @Query("page") page: Int
     ): Response<GamesListResponse>
 }

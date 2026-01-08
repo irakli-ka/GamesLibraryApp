@@ -46,4 +46,17 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
+
+    <!-- NEW: RecyclerView for the vertical list -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/games_feed_RV"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginTop="8dp"
+        app:layout_constraintTop_toBottomOf="@id/games_carousel"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        tools:listitem="@layout/item_game_card_row"/>
+
 </androidx.constraintlayout.widget.ConstraintLayout>

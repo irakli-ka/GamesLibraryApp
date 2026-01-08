@@ -16,7 +16,7 @@ data class Game(
     val platforms: List<PlatformInfo>,
 
     @SerializedName("rating")
-    val rating: Double?,
+    val rating: Double,
 
     @SerializedName("genres")
     val genres: List<Genre>,
