@@ -3,9 +3,9 @@ package com.example.gameslibraryapp.views
 import android.content.Context
 import android.util.AttributeSet
 import android.view.LayoutInflater
-import android.widget.Toast
 import androidx.constraintlayout.widget.ConstraintLayout
-import com.example.gameslibraryapp.views.SearchBarView
+import com.example.gameslibraryapp.R
+import androidx.navigation.findNavController
 import com.example.gameslibraryapp.databinding.TopBarViewBinding
 
 class TopBarView @JvmOverloads constructor(
@@ -27,7 +27,7 @@ class TopBarView @JvmOverloads constructor(
 
     private fun setupClickListeners() {
         binding.profilePicture.setOnClickListener {
-            Toast.makeText(context, "Menu button clicked!", Toast.LENGTH_SHORT).show()
+            findNavController().navigate(R.id.action_global_signupFragment)
         }
     }
 }

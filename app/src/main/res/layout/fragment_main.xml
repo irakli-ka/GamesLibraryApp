@@ -1,4 +1,3 @@
-<!-- fragment_main.xml (NEW, BETTER WAY) -->
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -47,7 +46,6 @@
         app:layout_constraintStart_toStartOf="parent" />
 
 
-    <!-- NEW: RecyclerView for the vertical list -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/games_feed_RV"
         android:layout_width="match_parent"

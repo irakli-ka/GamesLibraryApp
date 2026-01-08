@@ -13,11 +13,9 @@ class GamePagingSource(
 ) : PagingSource<Int, Game>() {
 
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, Game> {
-        // Get the page number to load. Start with 1 if it's the first time.
         val page = params.key ?: 1
 
         return try {
-            // Call the API with the current page number
             val response = api.getGames(
                 apiKey = BuildConfig.API_KEY,
                 dates = dates,
@@ -33,16 +31,13 @@ class GamePagingSource(
                 nextKey = if (games.isEmpty()) null else page + 1
             )
         } catch (e: IOException) {
-            // Network error
             LoadResult.Error(e)
         } catch (e: HttpException) {
-            // API error (4xx, 5xx)
             LoadResult.Error(e)
         }
     }
 
     override fun getRefreshKey(state: PagingState<Int, Game>): Int? {
-        // Tries to find the page key for the closest page to the last accessed index
         return state.anchorPosition?.let { anchorPosition ->
             state.closestPageToPosition(anchorPosition)?.prevKey?.plus(1)
                 ?: state.closestPageToPosition(anchorPosition)?.nextKey?.minus(1)
