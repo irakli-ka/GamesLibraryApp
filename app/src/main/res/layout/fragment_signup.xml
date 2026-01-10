@@ -6,13 +6,40 @@
     android:layout_height="match_parent"
     tools:context=".SignupFragment">
 
-    <!-- 1. Username/Email Field (Unchanged) -->
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/email_layout"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="100dp"
+        android:layout_marginEnd="32dp"
+        android:hint="Email"
+        android:textColorHint="@color/text_secondary"
+        app:boxStrokeColor="@color/text_secondary"
+        app:cursorColor="@color/text_secondary"
+        app:hintTextColor="@color/text_secondary"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:startIconDrawable="@drawable/ic_email">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/email_input"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="textEmailAddress"
+            android:paddingStart="40dp"
+            android:textColor="@color/text_primary"
+            android:textColorHighlight="@color/my_darker_background" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/username_layout"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="32dp"
-        android:layout_marginTop="150dp"
+        android:layout_marginTop="16dp"
         android:layout_marginEnd="32dp"
         android:hint="Username"
         android:textColorHint="@color/text_secondary"
@@ -21,7 +48,7 @@
         app:hintTextColor="@color/text_secondary"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/email_layout"
         app:startIconDrawable="@drawable/ic_person">
 
         <com.google.android.material.textfield.TextInputEditText
@@ -44,6 +71,7 @@
         android:textColorHint="@color/text_secondary"
         app:boxStrokeColor="@color/text_secondary"
         app:cursorColor="@color/text_secondary"
+        app:errorIconDrawable="@null"
         app:hintTextColor="@color/text_secondary"
         app:layout_constraintEnd_toEndOf="@id/username_layout"
         app:layout_constraintStart_toStartOf="@id/username_layout"
@@ -62,7 +90,6 @@
 
     </com.google.android.material.textfield.TextInputLayout>
 
-    <!-- 3. Confirm Password Field (Added) -->
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/confirm_password_layout"
         android:layout_width="0dp"
@@ -72,6 +99,7 @@
         android:textColorHint="@color/text_secondary"
         app:boxStrokeColor="@color/text_secondary"
         app:cursorColor="@color/text_secondary"
+        app:errorIconDrawable="@null"
         app:hintTextColor="@color/text_secondary"
         app:layout_constraintEnd_toEndOf="@id/password_layout"
         app:layout_constraintStart_toStartOf="@id/password_layout"
@@ -96,6 +124,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="32dp"
+        android:enabled="false"
         android:padding="12dp"
         android:text="Sign Up"
         android:textAllCaps="false"
@@ -109,7 +138,6 @@
     <com.google.android.material.button.MaterialButton
         android:id="@+id/have_an_account_btn"
         style="@style/Widget.Material3.Button.OutlinedButton"
-        app:strokeColor="@color/my_background"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
@@ -121,6 +149,7 @@
         app:layout_constraintEnd_toEndOf="@id/signup_btn"
         app:layout_constraintStart_toStartOf="@id/signup_btn"
         app:layout_constraintTop_toBottomOf="@id/signup_btn"
-        app:rippleColor="@color/text_secondary" />
+        app:rippleColor="@color/text_secondary"
+        app:strokeColor="@color/my_background" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
