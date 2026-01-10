@@ -13,11 +13,15 @@ import com.example.gameslibraryapp.databinding.FragmentSignupBinding
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.auth
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.database
 
 
 class SignupFragment : Fragment() {
 
-    private lateinit var auth: FirebaseAuth;
+    private lateinit var auth: FirebaseAuth
+    private lateinit var database: FirebaseDatabase
+
     private var _binding: FragmentSignupBinding? = null
     private val binding get() = _binding!!
 
@@ -29,6 +33,7 @@ class SignupFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         auth = Firebase.auth
+        database = Firebase.database
     }
 
     override fun onCreateView(
@@ -45,116 +50,98 @@ class SignupFragment : Fragment() {
         binding.emailInput.addTextChangedListener(object : SimpleTextWatcher() {
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 val email = binding.emailInput.text.toString().trim()
-
                 isEmailValid =
                     email.isNotEmpty() && android.util.Patterns.EMAIL_ADDRESS.matcher(email)
                         .matches()
-
                 if (!isEmailValid) {
                     binding.emailLayout.error = "Enter a valid email address"
                 } else {
                     binding.emailLayout.error = null
                 }
+                updateButtonState()
             }
         })
 
         binding.usernameInput.addTextChangedListener(object : SimpleTextWatcher() {
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                if (s.toString().length > 2 && s.toString().isNotBlank()) {
-                    binding.usernameLayout.error = null
-                    isUsernameValid = true
+                val username = s.toString().trim()
+                isUsernameValid = username.length > 2
+                if (!isUsernameValid) {
+                    binding.usernameLayout.error = "Username must be at least 3 characters"
                 } else {
-                    binding.usernameLayout.error = "Username should use at least 3 letters"
-                    isUsernameValid = false
+                    binding.usernameLayout.error = null
                 }
+                updateButtonState()
             }
         })
 
-        val passwordWatcher = object : SimpleTextWatcher() {
+        binding.passwordInput.addTextChangedListener(object : SimpleTextWatcher() {
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                isPasswordValid = validatePasswords()
+                val password = s.toString().trim()
+                isPasswordValid = password.length >= 6
+                if (!isPasswordValid) {
+                    binding.passwordLayout.error = "Password must be at least 6 characters"
+                } else {
+                    binding.passwordLayout.error = null
+                }
+                updateButtonState()
             }
-        }
-
-        binding.passwordInput.addTextChangedListener(passwordWatcher)
-        binding.confirmPasswordInput.addTextChangedListener(passwordWatcher)
+        })
 
 
         binding.haveAnAccountBtn.setOnClickListener {
-
             findNavController().navigate(R.id.action_signupFragment_to_loginFragment)
         }
-
 
         binding.signupBtn.setOnClickListener {
             val email = binding.emailInput.text.toString().trim()
             val password = binding.passwordInput.text.toString().trim()
 
-            if (!isEmailValid || !isUsernameValid || !isPasswordValid) {
-                return@setOnClickListener
-            }
-
             auth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(requireActivity()) { task ->
                     if (task.isSuccessful) {
                         val firebaseUser = auth.currentUser
-                        // TODO...username logic
+                        if (firebaseUser != null) {
+                            val usernamesRef = database.reference.child("username_to_email")
+                            usernamesRef.child(binding.usernameInput.text.toString().trim())
+                                .setValue(email)
+                                .addOnSuccessListener {
+                                    Toast.makeText(
+                                        context,
+                                        "Account created successfully!",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                    findNavController().navigate(R.id.action_global_mainFragment)
 
-                        Toast.makeText(
-                            context,
-                            "Account created successfully! Redirecting!",
-                            Toast.LENGTH_SHORT,
-                        ).show()
-
-                        findNavController().navigate(R.id.action_signupFragment_to_loginFragment)
-
+                                }
+                                .addOnFailureListener { e ->
+                                    Toast.makeText(
+                                        context,
+                                        "Account created, but could not save username: ${e.message}",
+                                        Toast.LENGTH_LONG
+                                    ).show()
+                                }
+                        }
                     } else {
                         Toast.makeText(
                             context,
                             "Authentication failed: ${task.exception?.message}",
-                            Toast.LENGTH_LONG,
+                            Toast.LENGTH_LONG
                         ).show()
                     }
                 }
-
-
         }
     }
 
-    fun validatePasswords(): Boolean {
-        val password = binding.passwordInput.text.toString().trim()
-        val confirmPassword = binding.confirmPasswordInput.text.toString().trim()
-        var passwordValid = false
-        var confirmPasswordValid = false
-
-        if (password.length < 6) {
-            binding.passwordLayout.error = "Password must be at least 6 characters"
-        } else {
-            binding.passwordLayout.error = null
-            passwordValid = true
-        }
-
-        if (confirmPassword.isNotEmpty() && password != confirmPassword) {
-            binding.confirmPasswordLayout.error = "Passwords do not match"
-        } else {
-            binding.confirmPasswordLayout.error = null
-            confirmPasswordValid = true
-        }
-        return passwordValid && confirmPasswordValid
+    private fun updateButtonState() {
+        binding.signupBtn.isEnabled = isEmailValid && isUsernameValid && isPasswordValid
     }
-
 
     private abstract class SimpleTextWatcher : TextWatcher {
-        override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
-        }
-
-        override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-        }
-
-        override fun afterTextChanged(s: Editable?) {
-        }
+        override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+        override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+        override fun afterTextChanged(s: Editable?) {}
     }
-
 
     override fun onDestroyView() {
         super.onDestroyView()

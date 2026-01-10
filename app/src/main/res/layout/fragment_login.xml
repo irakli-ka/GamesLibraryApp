@@ -43,6 +43,7 @@
         android:textColorHint="@color/text_secondary"
         app:boxStrokeColor="@color/text_secondary"
         app:cursorColor="@color/text_secondary"
+        app:errorIconDrawable="@null"
         app:hintTextColor="@color/text_secondary"
         app:layout_constraintEnd_toEndOf="@id/username_layout"
         app:layout_constraintStart_toStartOf="@id/username_layout"

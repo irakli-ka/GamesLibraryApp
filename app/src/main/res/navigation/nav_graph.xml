@@ -38,6 +38,9 @@
     <action
         android:id="@+id/action_global_signupFragment"
         app:destination="@id/signupFragment" />
+    <action
+        android:id="@+id/action_global_mainFragment"
+        app:destination="@id/mainFragment" />
 
 
 </navigation>
