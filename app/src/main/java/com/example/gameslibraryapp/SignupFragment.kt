@@ -85,14 +85,38 @@ class SignupFragment : Fragment() {
             findNavController().navigate(R.id.action_signupFragment_to_loginFragment)
         }
 
-        binding.signupBtn.isEnabled = isEmailValid && isUsernameValid && isPasswordValid
 
         binding.signupBtn.setOnClickListener {
-            Toast.makeText(
-                context,
-                "Validation successful! Creating account...",
-                Toast.LENGTH_SHORT
-            ).show()
+            val email = binding.emailInput.text.toString().trim()
+            val password = binding.passwordInput.text.toString().trim()
+
+            if (!isEmailValid || !isUsernameValid || !isPasswordValid) {
+                return@setOnClickListener
+            }
+
+            auth.createUserWithEmailAndPassword(email, password)
+                .addOnCompleteListener(requireActivity()) { task ->
+                    if (task.isSuccessful) {
+                        val firebaseUser = auth.currentUser
+                        // TODO...username logic
+
+                        Toast.makeText(
+                            context,
+                            "Account created successfully! Redirecting!",
+                            Toast.LENGTH_SHORT,
+                        ).show()
+
+                        findNavController().navigate(R.id.action_signupFragment_to_loginFragment)
+
+                    } else {
+                        Toast.makeText(
+                            context,
+                            "Authentication failed: ${task.exception?.message}",
+                            Toast.LENGTH_LONG,
+                        ).show()
+                    }
+                }
+
 
         }
     }
