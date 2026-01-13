@@ -9,6 +9,7 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.ConcatAdapter
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.gameslibraryapp.adapter.CarouselHeaderAdapter
@@ -46,8 +47,21 @@ class MainFragment : Fragment(), SearchBarView.OnSearchListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        binding.topBar.searchBar.setOnSearchListener(this)
+//        binding.topBar.searchBar.setOnSearchListener(this)
+
+
         setupRecyclerView()
+
+        binding.searchBarClickTarget.setOnClickListener {
+            findNavController().navigate(R.id.action_global_searchFragment)
+        }
+
+        mainViewModel.userProfile.observe(viewLifecycleOwner) { userProfile ->
+            if (userProfile != null) {
+                binding.topBar.setProfileImage(userProfile.profileImageUrl)
+            }
+        }
+
 
         viewLifecycleOwner.lifecycleScope.launch {
             mainViewModel.carouselGames.collectLatest { games ->
@@ -67,39 +81,6 @@ class MainFragment : Fragment(), SearchBarView.OnSearchListener {
             }
         }
 
-        if (auth.currentUser != null) {
-            val userEmail = auth.currentUser!!.email
-            if (userEmail != null) {
-                database.reference.child("username_to_email")
-                    .orderByValue()
-                    .equalTo(userEmail)
-                    .get()
-                    .addOnSuccessListener { dataSnapshot ->
-                        if (dataSnapshot.exists()) {
-                            val username = dataSnapshot.children.first().key
-                            if (username != null) {
-                                Toast.makeText(context, "Welcome, $username!", Toast.LENGTH_SHORT)
-                                    .show()
-                                val imageUrl =
-                                    "https://api.dicebear.com/8.x/pixel-art/png?seed=$username"
-                                binding.topBar.setProfileImage(imageUrl)
-                            }
-                        } else {
-                            binding.topBar.setProfileImage(null)
-                        }
-                    }.addOnFailureListener {
-                        Toast.makeText(
-                            context,
-                            "Error connecting to the database.",
-                            Toast.LENGTH_SHORT
-                        )
-                            .show()
-                        binding.topBar.setProfileImage(null)
-                    }
-            } else {
-                binding.topBar.setProfileImage(null)
-            }
-        }
 
 
     }
