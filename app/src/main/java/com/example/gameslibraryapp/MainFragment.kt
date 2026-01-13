@@ -16,6 +16,11 @@ import com.example.gameslibraryapp.adapter.GamesCarouselAdapter
 import com.example.gameslibraryapp.adapter.GamesFeedAdapter
 import com.example.gameslibraryapp.databinding.FragmentMainBinding
 import com.example.gameslibraryapp.views.SearchBarView
+import com.google.firebase.Firebase
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.auth
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.database
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
@@ -23,7 +28,8 @@ class MainFragment : Fragment(), SearchBarView.OnSearchListener {
     private var _binding: FragmentMainBinding? = null
     private val binding get() = _binding!!
     private val mainViewModel: MainViewModel by viewModels()
-
+    private lateinit var auth: FirebaseAuth
+    private lateinit var database: FirebaseDatabase
     private lateinit var carouselAdapter: GamesCarouselAdapter
     private lateinit var headerAdapter: CarouselHeaderAdapter
     private lateinit var gamesFeedAdapter: GamesFeedAdapter
@@ -32,6 +38,8 @@ class MainFragment : Fragment(), SearchBarView.OnSearchListener {
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
         _binding = FragmentMainBinding.inflate(inflater, container, false)
+        auth = Firebase.auth
+        database = Firebase.database
         return binding.root
     }
 
@@ -41,7 +49,6 @@ class MainFragment : Fragment(), SearchBarView.OnSearchListener {
         binding.topBar.searchBar.setOnSearchListener(this)
         setupRecyclerView()
 
-        // 1. Observe the Carousel Data (Restores state when returning)
         viewLifecycleOwner.lifecycleScope.launch {
             mainViewModel.carouselGames.collectLatest { games ->
                 if (games.isNotEmpty()) {
@@ -54,12 +61,47 @@ class MainFragment : Fragment(), SearchBarView.OnSearchListener {
             }
         }
 
-        // 2. Observe the Feed
         viewLifecycleOwner.lifecycleScope.launch {
             mainViewModel.gamesFeed.collectLatest { pagingData ->
                 gamesFeedAdapter.submitData(pagingData)
             }
         }
+
+        if (auth.currentUser != null) {
+            val userEmail = auth.currentUser!!.email
+            if (userEmail != null) {
+                database.reference.child("username_to_email")
+                    .orderByValue()
+                    .equalTo(userEmail)
+                    .get()
+                    .addOnSuccessListener { dataSnapshot ->
+                        if (dataSnapshot.exists()) {
+                            val username = dataSnapshot.children.first().key
+                            if (username != null) {
+                                Toast.makeText(context, "Welcome, $username!", Toast.LENGTH_SHORT)
+                                    .show()
+                                val imageUrl =
+                                    "https://api.dicebear.com/8.x/pixel-art/png?seed=$username"
+                                binding.topBar.setProfileImage(imageUrl)
+                            }
+                        } else {
+                            binding.topBar.setProfileImage(null)
+                        }
+                    }.addOnFailureListener {
+                        Toast.makeText(
+                            context,
+                            "Error connecting to the database.",
+                            Toast.LENGTH_SHORT
+                        )
+                            .show()
+                        binding.topBar.setProfileImage(null)
+                    }
+            } else {
+                binding.topBar.setProfileImage(null)
+            }
+        }
+
+
     }
 
     private fun setupRecyclerView() {
@@ -69,7 +111,8 @@ class MainFragment : Fragment(), SearchBarView.OnSearchListener {
 
         gamesFeedAdapter.addLoadStateListener { loadState ->
             if (!mainViewModel.hasCarouselData() &&
-                gamesFeedAdapter.itemCount >= 5) {
+                gamesFeedAdapter.itemCount >= 5
+            ) {
 
                 val carouselGames = gamesFeedAdapter.snapshot().items.take(5)
                 mainViewModel.setCarouselGames(carouselGames)

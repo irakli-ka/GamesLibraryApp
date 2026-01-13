@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import androidx.constraintlayout.widget.ConstraintLayout
 import com.example.gameslibraryapp.R
 import androidx.navigation.findNavController
+import com.bumptech.glide.Glide
 import com.example.gameslibraryapp.databinding.TopBarViewBinding
 
 class TopBarView @JvmOverloads constructor(
@@ -23,6 +24,19 @@ class TopBarView @JvmOverloads constructor(
 
     init {
         setupClickListeners()
+    }
+
+
+    fun setProfileImage(imageUrl: String?) {
+        if (imageUrl.isNullOrEmpty()) {
+            binding.profilePicture.setImageResource(R.drawable.ic_launcher_background)
+        } else {
+            Glide.with(context)
+                .load(imageUrl)
+                .placeholder(R.drawable.ic_login)
+                .error(R.drawable.error)
+                .into(binding.profilePicture)
+        }
     }
 
     private fun setupClickListeners() {
