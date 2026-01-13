@@ -8,8 +8,7 @@ import java.io.IOException
 
 class GamePagingSource(
     private val api: RawgApi,
-    private val dates: String,
-    private val ordering: String
+    private val filters: Map<String, String?>
 ) : PagingSource<Int, Game>() {
 
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, Game> {
@@ -18,9 +17,8 @@ class GamePagingSource(
         return try {
             val response = api.getGames(
                 apiKey = BuildConfig.API_KEY,
-                dates = dates,
-                ordering = ordering,
-                page = page
+                page = page,
+                filters
             )
 
             val games = response.body()?.results ?: emptyList()

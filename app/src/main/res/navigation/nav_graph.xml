@@ -45,7 +45,16 @@
         android:id="@+id/searchFragment"
         android:name="com.example.gameslibraryapp.SearchFragment"
         android:label="fragment_search"
-        tools:layout="@layout/fragment_search" /><action android:id="@+id/action_global_searchFragment" app:destination="@id/searchFragment"/>
+        tools:layout="@layout/fragment_search" >
+        <action
+            android:id="@+id/action_searchFragment_to_searchresultFragment"
+            app:destination="@id/searchresultFragment" />
+    </fragment><action android:id="@+id/action_global_searchFragment" app:destination="@id/searchFragment"/>
+    <fragment
+        android:id="@+id/searchresultFragment"
+        android:name="com.example.gameslibraryapp.SearchresultFragment"
+        android:label="fragment_searchresult"
+        tools:layout="@layout/fragment_searchresult" />
 
 
 </navigation>
