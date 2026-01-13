@@ -29,7 +29,7 @@ class TopBarView @JvmOverloads constructor(
 
     fun setProfileImage(imageUrl: String?) {
         if (imageUrl.isNullOrEmpty()) {
-            binding.profilePicture.setImageResource(R.drawable.ic_launcher_background)
+            binding.profilePicture.setImageResource(R.drawable.ic_person)
         } else {
             Glide.with(context)
                 .load(imageUrl)
