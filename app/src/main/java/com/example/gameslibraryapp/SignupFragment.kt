@@ -95,42 +95,65 @@ class SignupFragment : Fragment() {
 
         binding.signupBtn.setOnClickListener {
             val email = binding.emailInput.text.toString().trim()
+            val username = binding.usernameInput.text.toString().trim()
             val password = binding.passwordInput.text.toString().trim()
 
-            auth.createUserWithEmailAndPassword(email, password)
-                .addOnCompleteListener(requireActivity()) { task ->
-                    if (task.isSuccessful) {
-                        val firebaseUser = auth.currentUser
-                        if (firebaseUser != null) {
-                            val usernamesRef = database.reference.child("username_to_email")
-                            usernamesRef.child(binding.usernameInput.text.toString().trim())
-                                .setValue(email)
-                                .addOnSuccessListener {
+            database.reference.child("username_to_email").child(username).get()
+                .addOnSuccessListener { dataSnapshot ->
+                    if (dataSnapshot.exists()) {
+                        binding.usernameLayout.error = "Username is already taken"
+                        Toast.makeText(
+                            context,
+                            "Please choose a different username",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    } else {
+                        binding.usernameLayout.error = null
+                        auth.createUserWithEmailAndPassword(email, password)
+                            .addOnCompleteListener(requireActivity()) { task ->
+                                if (task.isSuccessful) {
+                                    val firebaseUser = auth.currentUser
+                                    if (firebaseUser != null) {
+                                        val usernamesRef =
+                                            database.reference.child("username_to_email")
+                                        usernamesRef.child(
+                                            binding.usernameInput.text.toString().trim()
+                                        ).setValue(email).addOnSuccessListener {
+                                            Toast.makeText(
+                                                context,
+                                                "Account created successfully!",
+                                                Toast.LENGTH_SHORT
+                                            ).show()
+                                            findNavController().navigate(R.id.action_global_mainFragment)
+                                        }
+                                            .addOnFailureListener { e ->
+                                                Toast.makeText(
+                                                    context,
+                                                    " ${e.message}",
+                                                    Toast.LENGTH_LONG
+                                                ).show()
+                                            }
+                                    }
+                                } else {
                                     Toast.makeText(
                                         context,
-                                        "Account created successfully!",
-                                        Toast.LENGTH_SHORT
-                                    ).show()
-                                    findNavController().navigate(R.id.action_global_mainFragment)
-
-                                }
-                                .addOnFailureListener { e ->
-                                    Toast.makeText(
-                                        context,
-                                        "Account created, but could not save username: ${e.message}",
+                                        "Authentication failed: ${task.exception?.message}",
                                         Toast.LENGTH_LONG
                                     ).show()
                                 }
-                        }
-                    } else {
-                        Toast.makeText(
-                            context,
-                            "Authentication failed: ${task.exception?.message}",
-                            Toast.LENGTH_LONG
-                        ).show()
+                            }
+
                     }
+                }.addOnFailureListener {
+                    Toast.makeText(
+                        context,
+                        "Error checking username: ${it.message}",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
         }
+
+
     }
 
     private fun updateButtonState() {
