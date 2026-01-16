@@ -16,6 +16,16 @@
     <style name="RoundedSquare">
         <item name="cornerSize">8dp</item>
     </style>
+
+    <style name="Theme.App.Starting" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/my_background</item>
+
+        <item name="windowSplashScreenAnimatedIcon">@drawable/logo_animation_list</item>
+
+        <item name="windowSplashScreenAnimationDuration">300</item>
+
+        <item name="postSplashScreenTheme">@style/Theme.GamesLibraryApp</item>
+    </style>
 </resources>
 
 

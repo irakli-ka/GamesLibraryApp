@@ -7,7 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.ConcatAdapter
@@ -28,7 +28,7 @@ import kotlinx.coroutines.launch
 class MainFragment : Fragment(), SearchBarView.OnSearchListener {
     private var _binding: FragmentMainBinding? = null
     private val binding get() = _binding!!
-    private val mainViewModel: MainViewModel by viewModels()
+    private val mainViewModel: MainViewModel by activityViewModels()
     private lateinit var auth: FirebaseAuth
     private lateinit var database: FirebaseDatabase
     private lateinit var carouselAdapter: GamesCarouselAdapter
@@ -47,10 +47,19 @@ class MainFragment : Fragment(), SearchBarView.OnSearchListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-//        binding.topBar.searchBar.setOnSearchListener(this)
-
+        binding.gamesFeedRV.alpha = 0f
 
         setupRecyclerView()
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            mainViewModel.carouselGames.collectLatest { games ->
+                if (games.isNotEmpty()) {
+                    carouselAdapter.updateGames(games)
+
+                    binding.gamesFeedRV.animate().alpha(1f).setDuration(300).start()
+                }
+            }
+        }
 
         binding.searchBarClickTarget.setOnClickListener {
             findNavController().navigate(R.id.action_global_searchFragment)

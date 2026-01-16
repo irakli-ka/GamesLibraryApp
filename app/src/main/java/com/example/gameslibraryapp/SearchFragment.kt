@@ -51,10 +51,12 @@ class SearchFragment : Fragment() {
         }
 
         mainViewModel.genres.observe(viewLifecycleOwner) { genresList ->
-            populateChips(binding.chipGroupGenres, genresList)        }
+            populateChips(binding.chipGroupGenres, genresList)
+        }
 
         mainViewModel.stores.observe(viewLifecycleOwner) { storesList ->
-            populateChips(binding.chipGroupStores, storesList)        }
+            populateChips(binding.chipGroupStores, storesList)
+        }
 
         binding.applyFiltersBtn.setOnClickListener {
             val selectedFilters = buildFilterQuery()
@@ -64,7 +66,6 @@ class SearchFragment : Fragment() {
 
             findNavController().navigate(R.id.action_searchFragment_to_searchresultFragment)
         }
-
 
 
     }
@@ -131,7 +132,7 @@ class SearchFragment : Fragment() {
     private fun setupDatePickers() {
         val currentYear = Calendar.getInstance().get(Calendar.YEAR)
 
-        binding.dpDateFrom.init(currentYear, 0, 1, null)
+        binding.dpDateFrom.init(currentYear - 20, 0, 1, null)
 
         binding.dpDateTo.init(currentYear, 0, 1, null)
 
