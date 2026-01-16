@@ -61,7 +61,7 @@ class GamesCarouselAdapter(private var games: List<Game>) :
                     ).also {
                         it.marginEnd = 8
                     }
-                    setColorFilter(context.getColor(android.R.color.white)) // Apply tint
+                    setColorFilter(context.getColor(android.R.color.white))
                 }
                 holder.binding.platformIconsContainer.addView(iconImageView)
             }

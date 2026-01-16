@@ -9,9 +9,9 @@ import kotlinx.coroutines.tasks.await
 
 data class UserProfile(
     val username: String,
-    val profileImageUrl: String,
-    val email: String
-    )
+    val email: String,
+    val profileImageUrl: String = "https://api.dicebear.com/8.x/pixel-art/png?seed=$username"
+)
 
 class UserRepository {
 
@@ -20,19 +20,16 @@ class UserRepository {
 
     suspend fun getCurrentUserProfile(): UserProfile? {
         val currentUser = auth.currentUser ?: return null
-        val userEmail = currentUser.email ?: return null
+        val uid = currentUser.uid
 
         return try {
-            val usernameSnapshot = database.reference.child("username_to_email")
-                .orderByValue()
-                .equalTo(userEmail)
-                .get()
-                .await()
+            val snapshot = database.reference.child("users").child(uid).get().await()
 
-            if (usernameSnapshot.exists()) {
-                val username = usernameSnapshot.children.first().key ?: return null
-                val imageUrl = "https://api.dicebear.com/8.x/pixel-art/png?seed=$username"
-                UserProfile(username, imageUrl, userEmail)
+            if (snapshot.exists()) {
+                val username = snapshot.child("username").value as? String ?: ""
+                val email = snapshot.child("email").value as? String ?: ""
+
+                UserProfile(username,  email)
             } else {
                 null
             }

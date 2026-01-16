@@ -52,7 +52,8 @@ class MainViewModel : ViewModel() {
     )
 
     private val authStateListener = FirebaseAuth.AuthStateListener { firebaseAuth ->
-        if (firebaseAuth.currentUser != null) {
+        val user = firebaseAuth.currentUser
+        if (user != null) {
             _authState.value = AuthState.LoggedIn
             fetchUserProfile()
         } else {
@@ -75,7 +76,13 @@ class MainViewModel : ViewModel() {
 
     private fun fetchUserProfile() {
         viewModelScope.launch {
-            val profile = userRepository.getCurrentUserProfile()
+            var profile = userRepository.getCurrentUserProfile()
+
+            if (profile == null && _authState.value == AuthState.LoggedIn) {
+                kotlinx.coroutines.delay(700)
+                profile = userRepository.getCurrentUserProfile()
+            }
+
             _userProfile.postValue(profile)
         }
     }

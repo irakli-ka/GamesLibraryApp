@@ -19,14 +19,11 @@ class CarouselHeaderAdapter(
         private val indicatorViews = mutableListOf<View>()
 
         fun bind() {
-            // 1. Attach the adapter to the ViewPager
             binding.gamesCarousel.adapter = carouselAdapter
 
-            // 2. Setup Indicators if data exists
             val count = carouselAdapter.itemCount
             setupLineIndicator(count)
 
-            // 3. Register page change callback for indicators
             binding.gamesCarousel.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
                 override fun onPageSelected(position: Int) {
                     updateLineIndicator(position)

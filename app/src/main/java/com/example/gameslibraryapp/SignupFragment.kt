@@ -65,11 +65,17 @@ class SignupFragment : Fragment() {
         binding.usernameInput.addTextChangedListener(object : SimpleTextWatcher() {
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 val username = s.toString().trim()
-                isUsernameValid = username.length > 2
-                if (!isUsernameValid) {
+                val invalidCharsRegex = Regex("[^a-zA-Z0-9]")
+
+                if (username.length <= 2) {
                     binding.usernameLayout.error = "Username must be at least 3 characters"
+                    isUsernameValid = false
+                } else if (username.contains(invalidCharsRegex)) {
+                    binding.usernameLayout.error = "Only letters and numbers are allowed"
+                    isUsernameValid = false
                 } else {
                     binding.usernameLayout.error = null
+                    isUsernameValid = true
                 }
                 updateButtonState()
             }
@@ -112,27 +118,23 @@ class SignupFragment : Fragment() {
                         auth.createUserWithEmailAndPassword(email, password)
                             .addOnCompleteListener(requireActivity()) { task ->
                                 if (task.isSuccessful) {
-                                    val firebaseUser = auth.currentUser
-                                    if (firebaseUser != null) {
-                                        val usernamesRef =
-                                            database.reference.child("username_to_email")
-                                        usernamesRef.child(
-                                            binding.usernameInput.text.toString().trim()
-                                        ).setValue(email).addOnSuccessListener {
-                                            Toast.makeText(
-                                                context,
-                                                "Account created successfully!",
-                                                Toast.LENGTH_SHORT
-                                            ).show()
-                                            findNavController().navigate(R.id.action_signupFragment_to_mainFragment)
-                                        }
-                                            .addOnFailureListener { e ->
-                                                Toast.makeText(
-                                                    context,
-                                                    " ${e.message}",
-                                                    Toast.LENGTH_LONG
-                                                ).show()
-                                            }
+                                    val uid = auth.currentUser?.uid ?: return@addOnCompleteListener
+                                    val email = binding.emailInput.text.toString().trim()
+                                    val username = binding.usernameInput.text.toString().trim()
+
+                                    val userProfile = mapOf(
+                                        "username" to username,
+                                        "email" to email
+                                    )
+
+                                    val updates = hashMapOf<String, Any>(
+                                        "/users/$uid" to userProfile,
+                                        "/username_to_email/$username" to email
+                                    )
+
+                                    database.reference.updateChildren(updates).addOnSuccessListener {
+                                        Toast.makeText(context, "Welcome!", Toast.LENGTH_SHORT).show()
+                                        findNavController().navigate(R.id.action_signupFragment_to_mainFragment)
                                     }
                                 } else {
                                     Toast.makeText(
@@ -160,7 +162,7 @@ class SignupFragment : Fragment() {
         binding.signupBtn.isEnabled = isEmailValid && isUsernameValid && isPasswordValid
     }
 
-    private abstract class SimpleTextWatcher : TextWatcher {
+    abstract class SimpleTextWatcher : TextWatcher {
         override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
         override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
         override fun afterTextChanged(s: Editable?) {}

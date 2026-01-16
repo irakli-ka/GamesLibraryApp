@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.ConcatAdapter
@@ -90,27 +91,25 @@ class MainFragment : Fragment() {
         }
 
         viewLifecycleOwner.lifecycleScope.launch {
-            mainViewModel.authState.collect { authState ->
+            mainViewModel.authState.flowWithLifecycle(viewLifecycleOwner.lifecycle).collect { authState ->
                 when (authState) {
                     is AuthState.LoggedIn -> {
                         binding.topBar.setOnProfileClickListener {
-                             findNavController().navigate(R.id.action_global_profileFragment)
+                            findNavController().navigate(R.id.action_global_profileFragment)
                         }
                         mainViewModel.userProfile.observe(viewLifecycleOwner) { profile ->
-                            binding.topBar.setProfileImage(profile?.profileImageUrl)
+                            if (profile != null) {
+                                binding.topBar.setProfileImage(profile.profileImageUrl)
+                            }
                         }
                     }
                     is AuthState.LoggedOut -> {
-                        binding.topBar.setOnProfileClickListener {
-                            findNavController().navigate(R.id.action_global_loginFragment)
-                        }
-                        binding.topBar.setProfileImage(null)
-                    }
-                    is AuthState.Unknown -> {
+                        binding.topBar.setProfileImage(null) // Shows ic_login placeholder
                         binding.topBar.setOnProfileClickListener {
                             findNavController().navigate(R.id.action_global_loginFragment)
                         }
                     }
+                    else -> {}
                 }
             }
         }

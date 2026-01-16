@@ -4,9 +4,9 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
+import com.example.gameslibraryapp.SignupFragment.SimpleTextWatcher
 import com.example.gameslibraryapp.databinding.FragmentLoginBinding
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
@@ -18,7 +18,6 @@ class LoginFragment : Fragment() {
 
     private var _binding: FragmentLoginBinding? = null
     private val binding get() = _binding!!
-
     private lateinit var auth: FirebaseAuth
     private lateinit var database: FirebaseDatabase
 
@@ -40,48 +39,48 @@ class LoginFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
 
+        binding.usernameInput.addTextChangedListener(object : SimpleTextWatcher() {
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                val username = s.toString().trim()
+                val invalidCharsRegex = Regex("[^a-zA-Z0-9]")
+
+                if (username.length <= 2) {
+                    binding.usernameLayout.error = "Username must be at least 3 characters"
+                    binding.loginBtn.isEnabled = false
+                } else if (username.contains(invalidCharsRegex)) {
+                    binding.usernameLayout.error = "Only letters and numbers are allowed"
+                    binding.loginBtn.isEnabled = false
+                } else {
+                    binding.usernameLayout.error = null
+                    binding.loginBtn.isEnabled = true
+                }
+            }
+        })
+
         binding.dontHaveAccountBtn.setOnClickListener {
             findNavController().navigate(R.id.action_loginFragment_to_signupFragment)
         }
 
         binding.loginBtn.setOnClickListener {
-            binding.usernameLayout.error = null
-            binding.passwordLayout.error = null
-
             val username = binding.usernameInput.text.toString().trim()
             val password = binding.passwordInput.text.toString().trim()
 
-            if (username.isBlank()) {
-                binding.usernameLayout.error = "Username is required"
-                return@setOnClickListener
-            }
-            if (password.isBlank()) {
-                binding.passwordLayout.error = "Password is required"
-                return@setOnClickListener
-            }
-
-            database.reference.child("username_to_email").child(username)
-                .get()
-                .addOnSuccessListener { dataSnapshot ->
-                    val email = dataSnapshot.getValue(String::class.java)
+            database.reference.child("username_to_email").child(username).get()
+                .addOnSuccessListener { snapshot ->
+                    val email = snapshot.getValue(String::class.java)
 
                     if (email != null) {
                         auth.signInWithEmailAndPassword(email, password)
                             .addOnCompleteListener(requireActivity()) { task ->
                                 if (task.isSuccessful) {
-                                    Toast.makeText(context, "Login successful!", Toast.LENGTH_SHORT)
-                                        .show()
                                     findNavController().navigate(R.id.action_loginFragment_to_mainFragment)
                                 } else {
-                                    binding.passwordLayout.error = "Incorrect password"
+                                    binding.passwordLayout.error = "Invalid password"
                                 }
                             }
                     } else {
-                        binding.usernameLayout.error = "Username does not exist"
+                        binding.usernameLayout.error = "User not found"
                     }
-                }.addOnFailureListener {
-                    Toast.makeText(context, "Error connecting to the database.", Toast.LENGTH_SHORT)
-                        .show()
                 }
         }
     }
