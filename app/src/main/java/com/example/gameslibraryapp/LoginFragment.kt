@@ -71,7 +71,7 @@ class LoginFragment : Fragment() {
                                 if (task.isSuccessful) {
                                     Toast.makeText(context, "Login successful!", Toast.LENGTH_SHORT)
                                         .show()
-                                    findNavController().navigate(R.id.action_global_mainFragment)
+                                    findNavController().navigate(R.id.action_loginFragment_to_mainFragment)
                                 } else {
                                     binding.passwordLayout.error = "Incorrect password"
                                 }

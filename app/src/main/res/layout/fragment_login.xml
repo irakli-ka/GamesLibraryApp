@@ -78,7 +78,6 @@
         app:layout_constraintTop_toBottomOf="@id/password_layout"
         app:rippleColor="@color/text_secondary" />
 
-    <!-- "Sign Up" Link Button -->
     <com.google.android.material.button.MaterialButton
         android:id="@+id/dont_have_account_btn"
         style="@style/Widget.Material3.Button.OutlinedButton"

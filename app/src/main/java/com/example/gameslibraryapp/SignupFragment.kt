@@ -124,7 +124,7 @@ class SignupFragment : Fragment() {
                                                 "Account created successfully!",
                                                 Toast.LENGTH_SHORT
                                             ).show()
-                                            findNavController().navigate(R.id.action_global_mainFragment)
+                                            findNavController().navigate(R.id.action_signupFragment_to_mainFragment)
                                         }
                                             .addOnFailureListener { e ->
                                                 Toast.makeText(

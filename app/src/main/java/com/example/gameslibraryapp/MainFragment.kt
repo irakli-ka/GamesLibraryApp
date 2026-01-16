@@ -61,7 +61,7 @@ class MainFragment : Fragment() {
         }
 
         binding.searchBarClickTarget.setOnClickListener {
-            findNavController().navigate(R.id.action_global_searchFragment)
+            findNavController().navigate(R.id.action_mainFragment_to_searchFragment)
         }
 
         mainViewModel.userProfile.observe(viewLifecycleOwner) { userProfile ->
@@ -89,8 +89,31 @@ class MainFragment : Fragment() {
             }
         }
 
-
-
+        viewLifecycleOwner.lifecycleScope.launch {
+            mainViewModel.authState.collect { authState ->
+                when (authState) {
+                    is AuthState.LoggedIn -> {
+                        binding.topBar.setOnProfileClickListener {
+                             findNavController().navigate(R.id.action_global_profileFragment)
+                        }
+                        mainViewModel.userProfile.observe(viewLifecycleOwner) { profile ->
+                            binding.topBar.setProfileImage(profile?.profileImageUrl)
+                        }
+                    }
+                    is AuthState.LoggedOut -> {
+                        binding.topBar.setOnProfileClickListener {
+                            findNavController().navigate(R.id.action_global_loginFragment)
+                        }
+                        binding.topBar.setProfileImage(null)
+                    }
+                    is AuthState.Unknown -> {
+                        binding.topBar.setOnProfileClickListener {
+                            findNavController().navigate(R.id.action_global_loginFragment)
+                        }
+                    }
+                }
+            }
+        }
     }
 
     private fun setupRecyclerView() {

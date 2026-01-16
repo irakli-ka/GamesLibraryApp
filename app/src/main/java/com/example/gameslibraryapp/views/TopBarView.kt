@@ -5,7 +5,6 @@ import android.util.AttributeSet
 import android.view.LayoutInflater
 import androidx.constraintlayout.widget.ConstraintLayout
 import com.example.gameslibraryapp.R
-import androidx.navigation.findNavController
 import com.bumptech.glide.Glide
 import com.example.gameslibraryapp.databinding.TopBarViewBinding
 
@@ -22,26 +21,19 @@ class TopBarView @JvmOverloads constructor(
     val searchBar: SearchBarView
         get() = binding.searchBar
 
-    init {
-        setupClickListeners()
-    }
-
-
     fun setProfileImage(imageUrl: String?) {
         if (imageUrl.isNullOrEmpty()) {
-            binding.profilePicture.setImageResource(R.drawable.ic_person)
+            binding.profilePicture.setImageResource(R.drawable.ic_login)
         } else {
             Glide.with(context)
                 .load(imageUrl)
-                .placeholder(R.drawable.ic_login)
+                .placeholder(R.drawable.ic_person)
                 .error(R.drawable.error)
                 .into(binding.profilePicture)
         }
     }
 
-    private fun setupClickListeners() {
-        binding.profilePicture.setOnClickListener {
-            findNavController().navigate(R.id.action_global_signupFragment)
-        }
+    fun setOnProfileClickListener(listener: OnClickListener) {
+        binding.profilePicture.setOnClickListener(listener)
     }
 }

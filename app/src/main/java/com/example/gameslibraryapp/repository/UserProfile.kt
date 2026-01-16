@@ -9,8 +9,9 @@ import kotlinx.coroutines.tasks.await
 
 data class UserProfile(
     val username: String,
-    val profileImageUrl: String
-)
+    val profileImageUrl: String,
+    val email: String
+    )
 
 class UserRepository {
 
@@ -31,7 +32,7 @@ class UserRepository {
             if (usernameSnapshot.exists()) {
                 val username = usernameSnapshot.children.first().key ?: return null
                 val imageUrl = "https://api.dicebear.com/8.x/pixel-art/png?seed=$username"
-                UserProfile(username, imageUrl)
+                UserProfile(username, imageUrl, userEmail)
             } else {
                 null
             }
