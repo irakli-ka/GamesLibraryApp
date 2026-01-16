@@ -13,10 +13,13 @@ import android.widget.ArrayAdapter
 import android.widget.DatePicker
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.example.gameslibraryapp.databinding.FragmentSearchBinding
+import com.example.gameslibraryapp.viewmodel.SearchViewModel
 import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
+import kotlinx.coroutines.launch
 
 
 class SearchFragment : Fragment() {
@@ -25,6 +28,7 @@ class SearchFragment : Fragment() {
     private val binding get() = _binding!!
 
     private val mainViewModel: MainViewModel by activityViewModels()
+    private val searchViewModel: SearchViewModel by activityViewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -36,6 +40,7 @@ class SearchFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        searchViewModel.clearFilters()
         setupSpinners()
         setupDatePickers()
         mainViewModel.userProfile.observe(viewLifecycleOwner) { userProfile ->
@@ -61,12 +66,38 @@ class SearchFragment : Fragment() {
         binding.applyFiltersBtn.setOnClickListener {
             val selectedFilters = buildFilterQuery()
 
-
-            mainViewModel.applyFilters(selectedFilters)
+            searchViewModel.applySearchFilters(selectedFilters)
 
             findNavController().navigate(R.id.action_searchFragment_to_searchresultFragment)
         }
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            mainViewModel.authState.collect { authState ->
+                when (authState) {
+                    is AuthState.LoggedIn -> {
+                        binding.topBar.setOnProfileClickListener {
+                            findNavController().navigate(R.id.action_global_profileFragment)
+                        }
+                        mainViewModel.userProfile.observe(viewLifecycleOwner) { profile ->
+                            binding.topBar.setProfileImage(profile?.profileImageUrl)
+                        }
+                    }
+                    is AuthState.LoggedOut -> {
+                        binding.topBar.setOnProfileClickListener {
+                            findNavController().navigate(R.id.action_global_loginFragment)
+                        }
+                        binding.topBar.setProfileImage(null)
+                    }
+                    is AuthState.Unknown -> {
+                        binding.topBar.setOnProfileClickListener {
+                            findNavController().navigate(R.id.action_global_loginFragment)
+                        }
+                    }
+                }
+            }
+        }
     }
+
 
     private fun setupSpinners() {
         ArrayAdapter.createFromResource(

@@ -14,6 +14,7 @@ import com.example.gameslibraryapp.model.Genre
 import com.example.gameslibraryapp.model.Store
 import com.example.gameslibraryapp.repository.UserProfile
 import com.example.gameslibraryapp.repository.UserRepository
+import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -21,6 +22,12 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+
+sealed class AuthState {
+    object Unknown : AuthState()
+    object LoggedIn : AuthState()
+    object LoggedOut : AuthState()
+}
 
 class MainViewModel : ViewModel() {
 
@@ -31,6 +38,8 @@ class MainViewModel : ViewModel() {
     val userProfile: LiveData<UserProfile?> get() = _userProfile
     private val _genres = MutableLiveData<List<Genre>>()
     val genres: LiveData<List<Genre>> get() = _genres
+    private val _authState = MutableStateFlow<AuthState>(AuthState.Unknown)
+    val authState = _authState.asStateFlow()
 
     private val _stores = MutableLiveData<List<Store>>()
     val stores: LiveData<List<Store>> get() = _stores
@@ -42,12 +51,27 @@ class MainViewModel : ViewModel() {
         mapOf("" to "")
     )
 
+    private val authStateListener = FirebaseAuth.AuthStateListener { firebaseAuth ->
+        if (firebaseAuth.currentUser != null) {
+            _authState.value = AuthState.LoggedIn
+            fetchUserProfile()
+        } else {
+            _authState.value = AuthState.LoggedOut
+            _userProfile.value = null
+        }
+    }
+
     init {
-        fetchUserProfile()
+        FirebaseAuth.getInstance().addAuthStateListener(authStateListener)
+
         fetchGenres()
         fetchStores()
     }
 
+    override fun onCleared() {
+        super.onCleared()
+        FirebaseAuth.getInstance().removeAuthStateListener(authStateListener)
+    }
 
     private fun fetchUserProfile() {
         viewModelScope.launch {

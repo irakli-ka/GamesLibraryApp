@@ -18,7 +18,7 @@ class GamePagingSource(
             val response = api.getGames(
                 apiKey = BuildConfig.API_KEY,
                 page = page,
-                filters
+                filters = this.filters
             )
 
             val games = response.body()?.results ?: emptyList()
