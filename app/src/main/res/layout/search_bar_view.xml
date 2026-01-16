@@ -16,6 +16,7 @@
     app:boxStrokeColor="@color/text_primary"
     app:boxStrokeWidth="2dp"
     app:startIconDrawable="@drawable/ic_search"
+    android:textColorHint="@color/text_secondary"
     app:startIconTint="@color/text_secondary"
     app:endIconMode="clear_text"
     app:hintTextColor="@color/text_secondary">
