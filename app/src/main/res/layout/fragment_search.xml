@@ -28,6 +28,7 @@
             android:layout_height="wrap_content"
             android:padding="16dp">
 
+
             <TextView
                 android:id="@+id/label_ordering"
                 android:layout_width="wrap_content"
@@ -67,7 +68,6 @@
                 android:orientation="horizontal"
                 app:layout_constraintTop_toBottomOf="@id/label_dates">
 
-                <!-- "From" Year DatePicker -->
                 <DatePicker
                     android:id="@+id/dp_date_from"
                     android:layout_width="wrap_content"
@@ -120,8 +120,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     app:singleLine="true"
-                    app:singleSelection="false">
-                </com.google.android.material.chip.ChipGroup>
+                    app:singleSelection="false"></com.google.android.material.chip.ChipGroup>
             </HorizontalScrollView>
 
             <TextView
@@ -150,6 +149,35 @@
                     app:singleSelection="false" />
 
             </HorizontalScrollView>
+
+            <com.google.android.material.switchmaterial.SwitchMaterial
+                android:id="@+id/switch_search_precise"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:checked="true"
+                android:text="Precise Search"
+                android:textColor="@color/text_primary"
+                android:textSize="16sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/stores_scroll"
+                app:thumbTint="@color/text_secondary"
+                app:trackTint="@color/my_darker_background" />
+
+            <com.google.android.material.switchmaterial.SwitchMaterial
+                android:id="@+id/switch_search_exact"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="Exact Match"
+                android:textColor="@color/text_primary"
+                android:textSize="16sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/switch_search_precise"
+                app:thumbTint="@color/text_secondary"
+                app:trackTint="@color/my_darker_background" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
     </ScrollView>

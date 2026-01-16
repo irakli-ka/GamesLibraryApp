@@ -66,8 +66,6 @@ class SearchFragment : Fragment() {
 
             findNavController().navigate(R.id.action_searchFragment_to_searchresultFragment)
         }
-
-
     }
 
     private fun setupSpinners() {
@@ -79,18 +77,21 @@ class SearchFragment : Fragment() {
             adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
             binding.spinnerOrdering.adapter = adapter
         }
-
     }
 
     private fun buildFilterQuery(): Map<String, String> {
         val filters = mutableMapOf<String, String>()
+
+        val searchQuery = binding.topBar.searchBar.searchInput
+        if (searchQuery.isNotBlank()) {
+            filters["search"] = searchQuery
+        }
 
         val orderingValues = resources.getStringArray(R.array.ordering_options)
         val selectedOrderingPosition = binding.spinnerOrdering.selectedItemPosition
         if (selectedOrderingPosition != -1) {
             filters["ordering"] = "-${orderingValues[selectedOrderingPosition]}"
         }
-
 
         val selectedGenreIds = binding.chipGroupGenres.checkedChipIds
             .joinToString(separator = ",")
@@ -110,6 +111,14 @@ class SearchFragment : Fragment() {
         val startDate = "$fromYear-01-01"
         val endDate = "$toYear-12-31"
         filters["dates"] = "$startDate,$endDate"
+
+        if (binding.switchSearchPrecise.isChecked) {
+            filters["search_precise"] = "true"
+        }
+
+        if (binding.switchSearchExact.isChecked) {
+            filters["search_exact"] = "true"
+        }
 
 
         return filters
@@ -131,10 +140,14 @@ class SearchFragment : Fragment() {
 
     private fun setupDatePickers() {
         val currentYear = Calendar.getInstance().get(Calendar.YEAR)
+        val fromDatePicker = binding.dpDateFrom
+        val toDatePicker = binding.dpDateTo
 
-        binding.dpDateFrom.init(currentYear - 20, 0, 1, null)
+        fromDatePicker.maxDate = System.currentTimeMillis()
+        toDatePicker.maxDate = System.currentTimeMillis()
 
-        binding.dpDateTo.init(currentYear, 0, 1, null)
+        fromDatePicker.init(currentYear - 20, 0, 1, null)
+        toDatePicker.init(currentYear, 0, 1, null)
 
         hideDayMonthSpinners(binding.dpDateFrom)
         hideDayMonthSpinners(binding.dpDateTo)

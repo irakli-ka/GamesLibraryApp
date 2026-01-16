@@ -16,7 +16,6 @@ import com.example.gameslibraryapp.adapter.CarouselHeaderAdapter
 import com.example.gameslibraryapp.adapter.GamesCarouselAdapter
 import com.example.gameslibraryapp.adapter.GamesFeedAdapter
 import com.example.gameslibraryapp.databinding.FragmentMainBinding
-import com.example.gameslibraryapp.views.SearchBarView
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.auth
@@ -25,7 +24,7 @@ import com.google.firebase.database.database
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
-class MainFragment : Fragment(), SearchBarView.OnSearchListener {
+class MainFragment : Fragment() {
     private var _binding: FragmentMainBinding? = null
     private val binding get() = _binding!!
     private val mainViewModel: MainViewModel by activityViewModels()
@@ -115,10 +114,6 @@ class MainFragment : Fragment(), SearchBarView.OnSearchListener {
             adapter = concatAdapter
             layoutManager = LinearLayoutManager(context)
         }
-    }
-
-    override fun onSearch(query: String) {
-        Toast.makeText(requireContext(), "Search: $query", Toast.LENGTH_LONG).show()
     }
 
     override fun onDestroyView() {
