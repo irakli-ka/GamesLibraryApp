@@ -44,8 +44,4 @@ class TopBarView @JvmOverloads constructor(
             findNavController().navigate(R.id.action_global_signupFragment)
         }
     }
-
-    fun getSearchInput() {
-        TODO("Not yet implemented")
-    }
 }
