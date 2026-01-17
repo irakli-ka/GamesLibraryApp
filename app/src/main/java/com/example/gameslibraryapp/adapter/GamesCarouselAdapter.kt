@@ -1,6 +1,7 @@
 package com.example.gameslibraryapp.adapter
 
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.LinearLayout
@@ -9,10 +10,15 @@ import com.bumptech.glide.Glide
 import com.example.gameslibraryapp.R
 import com.example.gameslibraryapp.databinding.ItemGameCardBinding
 import com.example.gameslibraryapp.model.Game
+import com.example.gameslibraryapp.viewmodel.AuthState
 
 class GamesCarouselAdapter(
     private var games: List<Game>,
-    private val onGameClicked: (Game) -> Unit
+    private val onGameClicked: (Game) -> Unit,
+    private val onSaveGameClicked: (Game) -> Unit,
+    private val onRemoveGameClicked: (Game) -> Unit,
+    private val getLibraryIds: () -> List<Int>,
+    private val getAuthState: () -> AuthState
 ) : RecyclerView.Adapter<GamesCarouselAdapter.GameViewHolder>() {
 
     inner class GameViewHolder(val binding: ItemGameCardBinding) :
@@ -48,6 +54,9 @@ class GamesCarouselAdapter(
             .into(holder.binding.gameImage)
 
 
+        holder.binding.saveGameButton.setOnClickListener {
+            onSaveGameClicked(game)
+        }
 
         holder.binding.platformIconsContainer.removeAllViews()
         val addedIconTypes = mutableSetOf<Int>()
@@ -74,6 +83,26 @@ class GamesCarouselAdapter(
                     setColorFilter(context.getColor(android.R.color.white))
                 }
                 holder.binding.platformIconsContainer.addView(iconImageView)
+            }
+            val libraryIds = getLibraryIds()
+            val authState = getAuthState()
+
+            if (authState is AuthState.LoggedIn) {
+                holder.binding.saveGameButton.visibility = View.VISIBLE
+
+                if (libraryIds.contains(game.id)) {
+                    holder.binding.saveGameButton.setImageResource(R.drawable.ic_bookmark_filled)
+                    holder.binding.saveGameButton.setOnClickListener {
+                        onRemoveGameClicked(game)
+                    }
+                } else {
+                    holder.binding.saveGameButton.setImageResource(R.drawable.ic_bookmark)
+                    holder.binding.saveGameButton.setOnClickListener {
+                        onSaveGameClicked(game)
+                    }
+                }
+            } else {
+                holder.binding.saveGameButton.visibility = View.GONE
             }
         }
     }

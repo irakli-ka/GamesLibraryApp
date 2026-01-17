@@ -52,15 +52,6 @@ class MainFragment : Fragment() {
 
         setupRecyclerView()
 
-        viewLifecycleOwner.lifecycleScope.launch {
-            mainViewModel.carouselGames.collectLatest { games ->
-                if (games.isNotEmpty()) {
-                    carouselAdapter.updateGames(games)
-
-                    binding.gamesFeedRV.animate().alpha(1f).setDuration(300).start()
-                }
-            }
-        }
 
         binding.searchBarClickTarget.setOnClickListener {
             findNavController().navigate(R.id.action_mainFragment_to_searchFragment)
@@ -72,12 +63,11 @@ class MainFragment : Fragment() {
             }
         }
 
-
         viewLifecycleOwner.lifecycleScope.launch {
             mainViewModel.carouselGames.collectLatest { games ->
                 if (games.isNotEmpty()) {
                     carouselAdapter.updateGames(games)
-
+                    binding.gamesFeedRV.animate().alpha(1f).setDuration(300).start()
                     (binding.gamesFeedRV.adapter as? ConcatAdapter)?.adapters?.forEach {
                         if (it is CarouselHeaderAdapter) it.notifyItemChanged(0)
                     }
@@ -120,17 +110,29 @@ class MainFragment : Fragment() {
     }
 
     private fun setupRecyclerView() {
-        carouselAdapter = GamesCarouselAdapter(emptyList()) { clickedGame ->
-            val action =
-                MainFragmentDirections.actionMainFragmentToGameDetailsFragment(clickedGame.id)
-            findNavController().navigate(action)
-        }
+        carouselAdapter = GamesCarouselAdapter(
+            games = emptyList(),
+            onGameClicked = { clickedGame ->
+                val action = MainFragmentDirections.actionMainFragmentToGameDetailsFragment(clickedGame.id)
+                findNavController().navigate(action)
+            },
+            onSaveGameClicked = { gameToSave ->
+                mainViewModel.saveGameToLibrary(gameToSave)
+                Toast.makeText(context, "${gameToSave.name} added", Toast.LENGTH_SHORT).show()
+            },
+            onRemoveGameClicked = { gameToRemove ->
+                mainViewModel.removeGameFromLibrary(gameToRemove.id)
+                Toast.makeText(context, "${gameToRemove.name} removed", Toast.LENGTH_SHORT).show()
+            },
+            getLibraryIds = { mainViewModel.libraryGameIds.value.toList() },
+            getAuthState = { mainViewModel.authState.value }
+        )
+
         headerAdapter = CarouselHeaderAdapter(carouselAdapter, "Popular Games")
 
         gamesFeedAdapter = GamesFeedAdapter(
             onGameClicked = { clickedGame ->
-                val action =
-                    MainFragmentDirections.actionMainFragmentToGameDetailsFragment(clickedGame.id)
+                val action = MainFragmentDirections.actionMainFragmentToGameDetailsFragment(clickedGame.id)
                 findNavController().navigate(action)
             },
             onSaveGameClicked = { gameToSave ->
@@ -145,20 +147,14 @@ class MainFragment : Fragment() {
             getAuthState = { mainViewModel.authState.value }
         )
 
-        binding.gamesFeedRV.adapter = gamesFeedAdapter
-
         gamesFeedAdapter.addLoadStateListener { loadState ->
-            if (!mainViewModel.hasCarouselData() &&
-                gamesFeedAdapter.itemCount >= 5
-            ) {
-
+            if (!mainViewModel.hasCarouselData() && gamesFeedAdapter.itemCount >= 5) {
                 val carouselGames = gamesFeedAdapter.snapshot().items.take(5)
                 mainViewModel.setCarouselGames(carouselGames)
             }
         }
 
         val concatAdapter = ConcatAdapter(headerAdapter, gamesFeedAdapter)
-
         binding.gamesFeedRV.apply {
             adapter = concatAdapter
             layoutManager = LinearLayoutManager(context)
@@ -167,6 +163,7 @@ class MainFragment : Fragment() {
         viewLifecycleOwner.lifecycleScope.launch {
             mainViewModel.libraryGameIds.collect {
                 gamesFeedAdapter.notifyDataSetChanged()
+                carouselAdapter.notifyDataSetChanged()
             }
         }
     }

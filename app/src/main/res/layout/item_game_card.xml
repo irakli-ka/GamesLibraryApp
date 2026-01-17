@@ -70,11 +70,23 @@
             android:paddingEnd="8dp"
             android:paddingBottom="2dp"
             android:textColor="@android:color/white"
-            android:textSize="12sp"
+            android:textSize="16sp"
             android:textStyle="bold"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             tools:text="4.47" />
+
+        <ImageButton
+            android:id="@+id/saveGameButton"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="Save game to library"
+            android:src="@drawable/ic_bookmark"
+            app:tint="@color/text_secondary"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="@id/game_rating"
+            app:layout_constraintTop_toBottomOf="@+id/game_rating" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
