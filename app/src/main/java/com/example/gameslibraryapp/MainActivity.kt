@@ -1,6 +1,5 @@
 package com.example.gameslibraryapp
 
-import MainViewModel
 import android.animation.ObjectAnimator
 import android.os.Bundle
 import android.view.View
@@ -13,6 +12,7 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.example.gameslibraryapp.databinding.ActivityMainBinding
+import com.example.gameslibraryapp.viewmodel.MainViewModel
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding

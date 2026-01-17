@@ -75,5 +75,18 @@
 
         </com.google.android.material.card.MaterialCardView>
 
+        <ImageButton
+            android:id="@+id/saveGameButton"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="Save game to library"
+            android:src="@drawable/ic_bookmark"
+            app:tint="@color/text_secondary"
+            app:layout_constraintStart_toStartOf="@id/ratingBadge"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/ratingBadge" />
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 </com.google.android.material.card.MaterialCardView>

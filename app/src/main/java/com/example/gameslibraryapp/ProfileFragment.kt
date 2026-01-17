@@ -1,6 +1,5 @@
 package com.example.gameslibraryapp
 
-import MainViewModel
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -10,6 +9,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
 import com.example.gameslibraryapp.databinding.FragmentProfileBinding
+import com.example.gameslibraryapp.viewmodel.MainViewModel
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
 

@@ -31,4 +31,6 @@ class SearchViewModel : ViewModel() {
     fun clearFilters() {
         _searchFilters.value = emptyMap()
     }
+
+
 }

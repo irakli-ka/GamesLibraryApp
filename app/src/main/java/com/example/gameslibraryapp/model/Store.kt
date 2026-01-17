@@ -1,6 +1,5 @@
 package com.example.gameslibraryapp.model
 
-import FilterableItem
 import com.google.gson.annotations.SerializedName
 
 data class Store(

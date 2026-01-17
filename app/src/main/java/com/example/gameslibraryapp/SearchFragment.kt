@@ -1,7 +1,5 @@
 package com.example.gameslibraryapp
 
-import FilterableItem
-import MainViewModel
 import android.content.res.Resources
 import android.icu.util.Calendar
 import android.os.Bundle
@@ -16,6 +14,9 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.example.gameslibraryapp.databinding.FragmentSearchBinding
+import com.example.gameslibraryapp.model.FilterableItem
+import com.example.gameslibraryapp.viewmodel.AuthState
+import com.example.gameslibraryapp.viewmodel.MainViewModel
 import com.example.gameslibraryapp.viewmodel.SearchViewModel
 import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup

@@ -1,5 +1,6 @@
 package com.example.gameslibraryapp.repository
 
+import com.example.gameslibraryapp.model.Game
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.auth
@@ -36,5 +37,26 @@ class UserRepository {
         } catch (e: Exception) {
             null
         }
+    }
+    suspend fun addGameToLibrary(game: Game) {
+        val currentUser = auth.currentUser ?: return
+        val userId = currentUser.uid
+
+        database.reference
+            .child("user_library")
+            .child(userId)
+            .child(game.id.toString())
+            .setValue(game)
+            .await()
+    }
+
+    suspend fun removeGameFromLibrary(gameId: Int) {
+        val userId = auth.currentUser?.uid ?: return
+        database.reference
+            .child("user_library")
+            .child(userId)
+            .child(gameId.toString())
+            .removeValue()
+            .await()
     }
 }

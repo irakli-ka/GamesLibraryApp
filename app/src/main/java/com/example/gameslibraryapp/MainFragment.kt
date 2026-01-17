@@ -1,10 +1,10 @@
 package com.example.gameslibraryapp
 
-import MainViewModel
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.flowWithLifecycle
@@ -16,6 +16,8 @@ import com.example.gameslibraryapp.adapter.CarouselHeaderAdapter
 import com.example.gameslibraryapp.adapter.GamesCarouselAdapter
 import com.example.gameslibraryapp.adapter.GamesFeedAdapter
 import com.example.gameslibraryapp.databinding.FragmentMainBinding
+import com.example.gameslibraryapp.viewmodel.AuthState
+import com.example.gameslibraryapp.viewmodel.MainViewModel
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.auth
@@ -90,42 +92,58 @@ class MainFragment : Fragment() {
         }
 
         viewLifecycleOwner.lifecycleScope.launch {
-            mainViewModel.authState.flowWithLifecycle(viewLifecycleOwner.lifecycle).collect { authState ->
-                when (authState) {
-                    is AuthState.LoggedIn -> {
-                        binding.topBar.setOnProfileClickListener {
-                            findNavController().navigate(R.id.action_global_profileFragment)
-                        }
-                        mainViewModel.userProfile.observe(viewLifecycleOwner) { profile ->
-                            if (profile != null) {
-                                binding.topBar.setProfileImage(profile.profileImageUrl)
+            mainViewModel.authState.flowWithLifecycle(viewLifecycleOwner.lifecycle)
+                .collect { authState ->
+                    when (authState) {
+                        is AuthState.LoggedIn -> {
+                            binding.topBar.setOnProfileClickListener {
+                                findNavController().navigate(R.id.action_global_profileFragment)
+                            }
+                            mainViewModel.userProfile.observe(viewLifecycleOwner) { profile ->
+                                if (profile != null) {
+                                    binding.topBar.setProfileImage(profile.profileImageUrl)
+                                }
                             }
                         }
-                    }
-                    is AuthState.LoggedOut -> {
-                        binding.topBar.setProfileImage(null)
-                        binding.topBar.setOnProfileClickListener {
-                            findNavController().navigate(R.id.action_global_loginFragment)
+
+                        is AuthState.LoggedOut -> {
+                            binding.topBar.setProfileImage(null)
+                            binding.topBar.setOnProfileClickListener {
+                                findNavController().navigate(R.id.action_global_loginFragment)
+                            }
                         }
+
+                        else -> {}
                     }
-                    else -> {}
                 }
-            }
         }
     }
 
     private fun setupRecyclerView() {
         carouselAdapter = GamesCarouselAdapter(emptyList()) { clickedGame ->
-            val action = MainFragmentDirections.actionMainFragmentToGameDetailsFragment(clickedGame.id)
+            val action =
+                MainFragmentDirections.actionMainFragmentToGameDetailsFragment(clickedGame.id)
             findNavController().navigate(action)
         }
         headerAdapter = CarouselHeaderAdapter(carouselAdapter, "Popular Games")
 
-        gamesFeedAdapter = GamesFeedAdapter { clickedGame ->
-            val action = MainFragmentDirections.actionMainFragmentToGameDetailsFragment(clickedGame.id)
-
-            findNavController().navigate(action)
-        }
+        gamesFeedAdapter = GamesFeedAdapter(
+            onGameClicked = { clickedGame ->
+                val action =
+                    MainFragmentDirections.actionMainFragmentToGameDetailsFragment(clickedGame.id)
+                findNavController().navigate(action)
+            },
+            onSaveGameClicked = { gameToSave ->
+                mainViewModel.saveGameToLibrary(gameToSave)
+                Toast.makeText(context, "${gameToSave.name} added", Toast.LENGTH_SHORT).show()
+            },
+            onRemoveGameClicked = { gameToRemove ->
+                mainViewModel.removeGameFromLibrary(gameToRemove.id)
+                Toast.makeText(context, "${gameToRemove.name} removed", Toast.LENGTH_SHORT).show()
+            },
+            getLibraryIds = { mainViewModel.libraryGameIds.value },
+            getAuthState = { mainViewModel.authState.value }
+        )
 
         binding.gamesFeedRV.adapter = gamesFeedAdapter
 
@@ -144,6 +162,12 @@ class MainFragment : Fragment() {
         binding.gamesFeedRV.apply {
             adapter = concatAdapter
             layoutManager = LinearLayoutManager(context)
+        }
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            mainViewModel.libraryGameIds.collect {
+                gamesFeedAdapter.notifyDataSetChanged()
+            }
         }
     }
 

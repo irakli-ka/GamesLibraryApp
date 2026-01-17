@@ -1,4 +1,7 @@
-import android.widget.Toast
+package com.example.gameslibraryapp.viewmodel
+
+import GamePagingSource
+import RetrofitInstance
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -15,6 +18,10 @@ import com.example.gameslibraryapp.model.Store
 import com.example.gameslibraryapp.repository.UserProfile
 import com.example.gameslibraryapp.repository.UserRepository
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -43,6 +50,8 @@ class MainViewModel : ViewModel() {
 
     private val _stores = MutableLiveData<List<Store>>()
     val stores: LiveData<List<Store>> get() = _stores
+    private val _libraryGameIds = MutableStateFlow<Set<Int>>(emptySet())
+    val libraryGameIds = _libraryGameIds.asStateFlow()
 
     private val excludedIds = _carouselGames.map { games ->
         games.map { it.id }.toSet()
@@ -56,9 +65,11 @@ class MainViewModel : ViewModel() {
         if (user != null) {
             _authState.value = AuthState.LoggedIn
             fetchUserProfile()
+            fetchUserLibrary()
         } else {
             _authState.value = AuthState.LoggedOut
             _userProfile.value = null
+            _libraryGameIds.value = emptySet()
         }
     }
 
@@ -103,7 +114,7 @@ class MainViewModel : ViewModel() {
         viewModelScope.launch {
             try {
                 val response = RetrofitInstance.api.getStores(BuildConfig.API_KEY)
-                if(response.isSuccessful && response.body() != null) {
+                if (response.isSuccessful && response.body() != null) {
                     _stores.postValue(response.body()!!.results)
                 }
             } catch (e: Exception) {
@@ -132,8 +143,45 @@ class MainViewModel : ViewModel() {
         }
     }
 
+    fun saveGameToLibrary(game: Game) {
+        if (_authState.value == AuthState.LoggedIn) {
+            viewModelScope.launch {
+                try {
+                    if (_libraryGameIds.value.contains(game.id)) {
+                        return@launch
+                    }
+                    userRepository.addGameToLibrary(game)
+                } catch (e: Exception) {
+                }
+            }
+        }
+    }
+
+    private fun fetchUserLibrary() {
+        val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return
+        val dbRef = FirebaseDatabase.getInstance().getReference("user_library/$userId")
+
+        dbRef.addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val ids = snapshot.children.mapNotNull { it.key?.toIntOrNull() }.toSet()
+                _libraryGameIds.value = ids
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+            }
+        })
+    }
+
+    fun removeGameFromLibrary(gameId: Int) {
+        if (_authState.value == AuthState.LoggedIn) {
+            viewModelScope.launch {
+                try {
+                    userRepository.removeGameFromLibrary(gameId)
+                } catch (e: Exception){ }
+            }
+        }
+    }
+
 
     fun hasCarouselData(): Boolean = _carouselGames.value.isNotEmpty()
-
-
 }
