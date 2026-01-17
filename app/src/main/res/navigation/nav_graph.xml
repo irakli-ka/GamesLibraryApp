@@ -103,6 +103,9 @@
             app:exitAnim="@anim/nav_default_exit_anim"
             app:popUpTo="@id/nav_graph"
             app:popUpToInclusive="true" />
+        <action
+            android:id="@+id/action_profileFragment_to_gameDetailsFragment"
+            app:destination="@id/gameDetailsFragment" />
     </fragment>
     <action
         android:id="@+id/action_global_profileFragment"

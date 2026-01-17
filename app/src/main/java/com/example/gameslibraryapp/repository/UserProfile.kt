@@ -59,4 +59,18 @@ class UserRepository {
             .removeValue()
             .await()
     }
+
+    suspend fun getLibraryGames(): List<Game> {
+        val userId = auth.currentUser?.uid ?: return emptyList()
+        return try {
+            val snapshot = database.reference
+                .child("user_library")
+                .child(userId)
+                .get()
+                .await()
+            snapshot.children.mapNotNull { it.getValue(Game::class.java) }
+        } catch (e: Exception) {
+            emptyList()
+        }
+    }
 }

@@ -47,11 +47,12 @@ class MainViewModel : ViewModel() {
     val genres: LiveData<List<Genre>> get() = _genres
     private val _authState = MutableStateFlow<AuthState>(AuthState.Unknown)
     val authState = _authState.asStateFlow()
-
     private val _stores = MutableLiveData<List<Store>>()
     val stores: LiveData<List<Store>> get() = _stores
     private val _libraryGameIds = MutableStateFlow<Set<Int>>(emptySet())
     val libraryGameIds = _libraryGameIds.asStateFlow()
+    private val _libraryGames = MutableLiveData<List<Game>>()
+    val libraryGames: LiveData<List<Game>> get() = _libraryGames
 
     private val excludedIds = _carouselGames.map { games ->
         games.map { it.id }.toSet()
@@ -66,10 +67,12 @@ class MainViewModel : ViewModel() {
             _authState.value = AuthState.LoggedIn
             fetchUserProfile()
             fetchUserLibrary()
+            fetchLibraryGames()
         } else {
             _authState.value = AuthState.LoggedOut
             _userProfile.value = null
             _libraryGameIds.value = emptySet()
+            _libraryGames.value = emptyList()
         }
     }
 
@@ -165,6 +168,8 @@ class MainViewModel : ViewModel() {
             override fun onDataChange(snapshot: DataSnapshot) {
                 val ids = snapshot.children.mapNotNull { it.key?.toIntOrNull() }.toSet()
                 _libraryGameIds.value = ids
+
+                fetchLibraryGames()
             }
 
             override fun onCancelled(error: DatabaseError) {
@@ -182,6 +187,10 @@ class MainViewModel : ViewModel() {
         }
     }
 
-
+    fun fetchLibraryGames() {
+        viewModelScope.launch {
+            _libraryGames.value = userRepository.getLibraryGames()
+        }
+    }
     fun hasCarouselData(): Boolean = _carouselGames.value.isNotEmpty()
 }
