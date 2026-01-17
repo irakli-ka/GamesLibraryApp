@@ -10,6 +10,7 @@ import androidx.activity.result.launch
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.gameslibraryapp.adapter.GamesFeedAdapter
 import com.example.gameslibraryapp.databinding.FragmentSearchresultBinding
@@ -22,7 +23,6 @@ class SearchresultFragment : Fragment() {
 
     private var _binding: FragmentSearchresultBinding? = null
     private val binding get() = _binding!!
-    private val mainViewModel: MainViewModel by activityViewModels()
     private val searchViewModel: SearchViewModel by activityViewModels()
     private lateinit var resultsAdapter: GamesFeedAdapter
 
@@ -44,9 +44,13 @@ class SearchresultFragment : Fragment() {
             }
         }
     }
-
     private fun setupRecyclerView() {
-        resultsAdapter = GamesFeedAdapter()
+        resultsAdapter = GamesFeedAdapter { clickedGame ->
+            val action =
+                SearchresultFragmentDirections.actionSearchresultFragmentToGameDetailsFragment(clickedGame.id)
+            findNavController().navigate(action)
+        }
+
         binding.searchResultsRv.apply {
             layoutManager = LinearLayoutManager(context)
             adapter = resultsAdapter

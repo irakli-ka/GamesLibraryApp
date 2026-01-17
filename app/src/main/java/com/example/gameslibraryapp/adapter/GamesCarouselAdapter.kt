@@ -10,8 +10,10 @@ import com.example.gameslibraryapp.R
 import com.example.gameslibraryapp.databinding.ItemGameCardBinding
 import com.example.gameslibraryapp.model.Game
 
-class GamesCarouselAdapter(private var games: List<Game>) :
-    RecyclerView.Adapter<GamesCarouselAdapter.GameViewHolder>() {
+class GamesCarouselAdapter(
+    private var games: List<Game>,
+    private val onGameClicked: (Game) -> Unit
+) : RecyclerView.Adapter<GamesCarouselAdapter.GameViewHolder>() {
 
     inner class GameViewHolder(val binding: ItemGameCardBinding) :
         RecyclerView.ViewHolder(binding.root)
@@ -22,7 +24,15 @@ class GamesCarouselAdapter(private var games: List<Game>) :
             parent,
             false
         )
-        return GameViewHolder(binding)
+        val viewHolder = GameViewHolder(binding)
+
+        viewHolder.binding.root.setOnClickListener {
+            val position = viewHolder.bindingAdapterPosition
+            if (position != RecyclerView.NO_POSITION) {
+                onGameClicked(games[position])
+            }
+        }
+        return viewHolder
     }
 
     override fun getItemCount(): Int = games.size

@@ -10,7 +10,9 @@ import com.example.gameslibraryapp.R
 import com.example.gameslibraryapp.databinding.ItemGameCardRowBinding
 import com.example.gameslibraryapp.model.Game
 
-class GamesFeedAdapter : PagingDataAdapter<Game, GamesFeedAdapter.GameViewHolder>(GameDiffCallback()) {
+class GamesFeedAdapter(
+    private val onGameClicked: (Game) -> Unit
+) : PagingDataAdapter<Game, GamesFeedAdapter.GameViewHolder>(GameDiffCallback()) {
 
     inner class GameViewHolder(val binding: ItemGameCardRowBinding) :
         RecyclerView.ViewHolder(binding.root)
@@ -21,7 +23,17 @@ class GamesFeedAdapter : PagingDataAdapter<Game, GamesFeedAdapter.GameViewHolder
             parent,
             false
         )
-        return GameViewHolder(binding)
+        val viewHolder = GameViewHolder(binding)
+
+        viewHolder.binding.root.setOnClickListener {
+            val position = viewHolder.bindingAdapterPosition
+            if (position != RecyclerView.NO_POSITION) {
+                getItem(position)?.let { game ->
+                    onGameClicked(game)
+                }
+            }
+        }
+        return viewHolder
     }
 
     override fun onBindViewHolder(holder: GameViewHolder, position: Int) {
@@ -48,7 +60,7 @@ class GamesFeedAdapter : PagingDataAdapter<Game, GamesFeedAdapter.GameViewHolder
 
         Glide.with(context)
             .load(game?.backgroundImage)
-            .error(R.drawable.ic_launcher_background)
+            .error(R.drawable.error)
             .into(holder.binding.gameImage)
     }
 }

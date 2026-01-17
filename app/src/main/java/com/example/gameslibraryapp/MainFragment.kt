@@ -5,7 +5,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.flowWithLifecycle
@@ -104,7 +103,7 @@ class MainFragment : Fragment() {
                         }
                     }
                     is AuthState.LoggedOut -> {
-                        binding.topBar.setProfileImage(null) // Shows ic_login placeholder
+                        binding.topBar.setProfileImage(null)
                         binding.topBar.setOnProfileClickListener {
                             findNavController().navigate(R.id.action_global_loginFragment)
                         }
@@ -116,9 +115,19 @@ class MainFragment : Fragment() {
     }
 
     private fun setupRecyclerView() {
-        carouselAdapter = GamesCarouselAdapter(emptyList())
-        headerAdapter = CarouselHeaderAdapter(carouselAdapter)
-        gamesFeedAdapter = GamesFeedAdapter()
+        carouselAdapter = GamesCarouselAdapter(emptyList()) { clickedGame ->
+            val action = MainFragmentDirections.actionMainFragmentToGameDetailsFragment(clickedGame.id)
+            findNavController().navigate(action)
+        }
+        headerAdapter = CarouselHeaderAdapter(carouselAdapter, "Popular Games")
+
+        gamesFeedAdapter = GamesFeedAdapter { clickedGame ->
+            val action = MainFragmentDirections.actionMainFragmentToGameDetailsFragment(clickedGame.id)
+
+            findNavController().navigate(action)
+        }
+
+        binding.gamesFeedRV.adapter = gamesFeedAdapter
 
         gamesFeedAdapter.addLoadStateListener { loadState ->
             if (!mainViewModel.hasCarouselData() &&

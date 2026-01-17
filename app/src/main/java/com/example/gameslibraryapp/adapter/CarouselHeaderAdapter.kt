@@ -4,13 +4,15 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
+import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
 import com.example.gameslibraryapp.R
 import com.example.gameslibraryapp.databinding.LayoutCarouselHeaderBinding
 
 class CarouselHeaderAdapter(
-    private val carouselAdapter: GamesCarouselAdapter
+    private val carouselAdapter: RecyclerView.Adapter<*>,
+    private val title: String? = null
 ) : RecyclerView.Adapter<CarouselHeaderAdapter.HeaderViewHolder>() {
 
     inner class HeaderViewHolder(val binding: LayoutCarouselHeaderBinding) :
@@ -19,6 +21,13 @@ class CarouselHeaderAdapter(
         private val indicatorViews = mutableListOf<View>()
 
         fun bind() {
+            if (title != null) {
+                binding.carouselTitle.text = title
+                binding.carouselTitle.isVisible = true
+            } else {
+                binding.carouselTitle.isVisible = false
+            }
+
             binding.gamesCarousel.adapter = carouselAdapter
 
             val count = carouselAdapter.itemCount

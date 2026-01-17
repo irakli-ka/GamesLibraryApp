@@ -12,5 +12,5 @@
     <color name="rating_medium">#FF9800</color>
     <color name="rating_low">#F44336</color>
     <color name="rating_na">#00FFFFFF</color>
-
+    <color name="link_color">#4488A6</color>
 </resources>

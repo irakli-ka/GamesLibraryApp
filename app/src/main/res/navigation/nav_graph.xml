@@ -17,13 +17,16 @@
             app:exitAnim="@anim/nav_default_exit_anim"
             app:popEnterAnim="@anim/nav_default_pop_enter_anim"
             app:popExitAnim="@anim/nav_default_pop_exit_anim" />
+        <action
+            android:id="@+id/action_mainFragment_to_gameDetailsFragment"
+            app:destination="@id/gameDetailsFragment" />
     </fragment>
 
     <fragment
         android:id="@+id/signupFragment"
         android:name="com.example.gameslibraryapp.SignupFragment"
         android:label="fragment_signup"
-        tools:layout="@layout/fragment_signup" >
+        tools:layout="@layout/fragment_signup">
         <action
             android:id="@+id/action_signupFragment_to_mainFragment"
             app:destination="@id/mainFragment"
@@ -82,13 +85,17 @@
         android:id="@+id/searchresultFragment"
         android:name="com.example.gameslibraryapp.SearchresultFragment"
         android:label="fragment_searchresult"
-        tools:layout="@layout/fragment_searchresult" />
+        tools:layout="@layout/fragment_searchresult">
+        <action
+            android:id="@+id/action_searchresultFragment_to_gameDetailsFragment"
+            app:destination="@id/gameDetailsFragment" />
+    </fragment>
 
     <fragment
         android:id="@+id/profileFragment"
         android:name="com.example.gameslibraryapp.ProfileFragment"
         android:label="fragment_profile"
-        tools:layout="@layout/fragment_profile" >
+        tools:layout="@layout/fragment_profile">
         <action
             android:id="@+id/action_profileFragment_to_mainFragment"
             app:destination="@id/mainFragment"
@@ -107,4 +114,13 @@
         app:destination="@id/loginFragment"
         app:enterAnim="@anim/nav_default_enter_anim"
         app:exitAnim="@anim/nav_default_exit_anim" />
+    <fragment
+        android:id="@+id/gameDetailsFragment"
+        android:name="com.example.gameslibraryapp.GameDetailsFragment"
+        android:label="fragment_game_details"
+        tools:layout="@layout/fragment_game_details" >
+        <argument
+            android:name="gameId"
+            app:argType="integer" />
+    </fragment>
 </navigation>
