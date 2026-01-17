@@ -56,7 +56,11 @@ class ProfileFragment : Fragment() {
 
         binding.logoutBtn.setOnClickListener {
             Firebase.auth.signOut()
-            findNavController().navigate(R.id.action_global_loginFragment)
+            findNavController().navigate(R.id.action_profileFragment_to_loginFragment_onLogout)
+        }
+
+        binding.searchUser.setOnClickListener {
+            findNavController().navigate(R.id.action_profileFragment_to_searchUserFragment)
         }
     }
 

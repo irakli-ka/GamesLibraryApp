@@ -60,6 +60,11 @@ class MainViewModel : ViewModel() {
     private val _feedFilters = MutableStateFlow<Map<String, String?>>(
         mapOf("" to "")
     )
+    private val _searchResultLibrary = MutableLiveData<List<Game>>()
+    val searchResultLibrary: LiveData<List<Game>> = _searchResultLibrary
+
+    private val _searchStatus = MutableLiveData<String>()
+    val searchStatus: LiveData<String> = _searchStatus
 
     private val authStateListener = FirebaseAuth.AuthStateListener { firebaseAuth ->
         val user = firebaseAuth.currentUser
@@ -193,4 +198,26 @@ class MainViewModel : ViewModel() {
         }
     }
     fun hasCarouselData(): Boolean = _carouselGames.value.isNotEmpty()
+
+    fun searchUserLibrary(username: String) {
+        viewModelScope.launch {
+            _searchStatus.value = "Searching for $username..."
+            val uid = userRepository.getUidByUsername(username)
+
+            if (uid != null) {
+                val games = userRepository.getLibraryByUid(uid)
+                _searchResultLibrary.value = games
+                _searchStatus.value = if (games.isEmpty()) "$username's library is empty." else "Showing $username's library"
+            } else {
+                _searchResultLibrary.value = emptyList()
+                _searchStatus.value = "User '$username' not found."
+            }
+        }
+    }
+
+    fun clearSearch() {
+        _searchResultLibrary.value = emptyList()
+        _searchStatus.value = ""
+    }
+
 }

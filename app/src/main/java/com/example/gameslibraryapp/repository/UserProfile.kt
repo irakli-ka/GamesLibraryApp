@@ -73,4 +73,31 @@ class UserRepository {
             emptyList()
         }
     }
+
+    suspend fun getUidByUsername(username: String): String? {
+        return try {
+            val snapshot = database.reference.child("users")
+                .orderByChild("username")
+                .equalTo(username)
+                .get()
+                .await()
+
+            snapshot.children.firstOrNull()?.key
+        } catch (e: Exception) {
+            null
+        }
+    }
+
+    suspend fun getLibraryByUid(uid: String): List<Game> {
+        return try {
+            val snapshot = database.reference
+                .child("user_library")
+                .child(uid)
+                .get()
+                .await()
+            snapshot.children.mapNotNull { it.getValue(Game::class.java) }
+        } catch (e: Exception) {
+            emptyList()
+        }
+    }
 }
