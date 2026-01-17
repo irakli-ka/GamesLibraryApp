@@ -43,6 +43,12 @@ class SearchresultFragment : Fragment() {
                 resultsAdapter.submitData(pagingData)
             }
         }
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            mainViewModel.libraryGameIds.collect {
+                resultsAdapter.notifyDataSetChanged()
+            }
+        }
     }
 
     private fun setupRecyclerView() {
