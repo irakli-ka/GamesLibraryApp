@@ -1,6 +1,6 @@
 # GamesLibraryApp
 
-A Kotlin Android app that lets users discover games (powered by the [RAWG API](https://rawg.io/apidocs), manage their personal game library, authenticate with Firebase, and share library items with other users.
+A Kotlin Android app that lets users discover games (powered by the [RAWG API](https://rawg.io/apidocs)), manage their personal game library, authenticate with Firebase, and share library items with other users.
 A working debug apk version of the app can be found [here](https://github.com/irakli-ka/GamesLibraryApp/releases/tag/apk)
 
 ### Features
