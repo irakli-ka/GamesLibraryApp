@@ -5,7 +5,7 @@ A working debug apk version of the app can be found [here](https://github.com/ir
 
 ### Features
    * Browse and search games from RAWG (game details, images, release dates, genres).
-   * User sign-up / sign-in (Firebase Authentication — email/password and optional providers).
-   * Personal game library: add/reomve entries from your library
+   * User sign-up / sign-in (Firebase Authentication — email/password).
+   * Personal game library: add/remove entries from your library
    * Library sharing: look up other users libraries with their username
    * Real-time sync of library data using Firebase Realtime Database.
